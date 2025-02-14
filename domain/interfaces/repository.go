@@ -1,9 +1,9 @@
 package interfaces
 
-import "gitverse-internship-zg/services/user-service/domain/entities"
+import "ttavito/domain/entities"
 
-type EntityRepository interface {
-	GetByID(id string) (*entities.Entity, error)
-	EditByID(newUser entities.EntityRequest) (*entities.Entity, error)
-	CreateUser(userData entities.EntityRequest) (*entities.Entity, error)
+type ShopRepository interface {
+	GetInfo(username string) (*entities.InfoResponse, error)
+	BuyItem(username, item string) error
+	SendCoin(senderUsername, recipientUsername string) error
 }

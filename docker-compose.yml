@@ -1,0 +1,30 @@
+services:
+  back:
+    container_name: back
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      JWT_SECRET_KEY: ultra-secret-key
+      DB_URL: postgresql://ttavito:ttavito@postgres/ttavito?sslmode=disable
+      PORT: 8080
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ttavito
+      POSTGRES_PASSWORD: ttavito
+      POSTGRES_DB: ttavito
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+
+volumes:
+  postgres_data:

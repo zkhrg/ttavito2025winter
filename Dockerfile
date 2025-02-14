@@ -8,20 +8,15 @@ RUN go mod download
 
 COPY . ./
 
-RUN go build -o /user-service -ldflags '-extldflags "-static"' ./cmd/user-service/main.go
-
-# Run the tests in the container
-FROM build-stage AS run-test-stage
+RUN CGO_ENABLED=0 go build -o /ttavito -ldflags '-extldflags "-static"' ./cmd/main.go
 
 # Deploy the application binary into a lean image
-FROM gcr.io/distroless/base-debian11 AS build-release-stage
+FROM scratch AS build-release-stage
 
 WORKDIR /
 
-COPY --from=build-stage /user-service /user-service
+COPY --from=build-stage /ttavito /ttavito
 
 EXPOSE 8080
 
-USER nonroot:nonroot
-
-ENTRYPOINT ["/user-service"]
+ENTRYPOINT ["/ttavito"]
