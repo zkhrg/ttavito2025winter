@@ -6,14 +6,14 @@ import (
 )
 
 type Usecase struct {
-	Repo interfaces.ShopRepository
+	repo interfaces.ShopRepository
 }
 
 func (u *Usecase) GetInfo(username string) (*entities.InfoResponse, error) {
 	return nil, nil
 }
 func (u *Usecase) BuyItem(username, item string) error {
-	u.Repo.BuyItem("john_doe", "cup")
+	u.repo.BuyItem("john_doe", "cup")
 	return nil
 }
 func (u *Usecase) SendCoin(senderUsername, recipientUsername string) error {
@@ -21,5 +21,5 @@ func (u *Usecase) SendCoin(senderUsername, recipientUsername string) error {
 }
 
 func NewUsecase(repo interfaces.ShopRepository) *Usecase {
-	return &Usecase{Repo: repo}
+	return &Usecase{repo: repo}
 }

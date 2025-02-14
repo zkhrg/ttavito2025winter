@@ -1,8 +1,9 @@
 package repository
 
 import (
-	"database/sql"
 	"fmt"
+
+	"database/sql"
 
 	"ttavito/domain/entities"
 	"ttavito/domain/interfaces"
@@ -11,19 +12,19 @@ import (
 )
 
 type EntityRepo struct {
-	DB      *sql.DB
-	Builder sq.StatementBuilderType
+	db      *sql.DB
+	builder sq.StatementBuilderType
 }
 
 func NewEntityRepo(db *sql.DB) interfaces.ShopRepository {
 	return &EntityRepo{
-		DB:      db,
-		Builder: sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
+		db:      db,
+		builder: sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
 	}
 }
 
 func (r *EntityRepo) BuyItem(username, item string) error {
-	tx, err := r.DB.Begin()
+	tx, err := r.db.Begin()
 	if err != nil {
 		return fmt.Errorf("failed to start transaction: %v", err)
 	}
@@ -40,7 +41,7 @@ func (r *EntityRepo) BuyItem(username, item string) error {
 		}
 	}()
 
-	selectPriceQuery, args, _ := r.Builder.Select("price").
+	selectPriceQuery, args, _ := r.builder.Select("price").
 		From("products").
 		Where(sq.Eq{"product_name": item}).
 		ToSql()
@@ -50,7 +51,7 @@ func (r *EntityRepo) BuyItem(username, item string) error {
 		return fmt.Errorf("failed to fetch product price: %v", err)
 	}
 
-	selectBalanceQuery, args, _ := r.Builder.Select("balance").
+	selectBalanceQuery, args, _ := r.builder.Select("balance").
 		From("users").
 		Where(sq.Eq{"username": username}).
 		ToSql()
@@ -64,7 +65,7 @@ func (r *EntityRepo) BuyItem(username, item string) error {
 		return fmt.Errorf("not enough balance to buy the product")
 	}
 
-	updateBalanceQuery, args, _ := r.Builder.Update("users").
+	updateBalanceQuery, args, _ := r.builder.Update("users").
 		Set("balance", sq.Expr("balance - ?", price)).
 		Where(sq.Eq{"username": username}).
 		ToSql()
@@ -73,7 +74,7 @@ func (r *EntityRepo) BuyItem(username, item string) error {
 		return fmt.Errorf("failed to update user balance: %v", err)
 	}
 
-	insertPurchaseQuery, args, _ := r.Builder.Insert("purchases").
+	insertPurchaseQuery, args, _ := r.builder.Insert("purchases").
 		Columns("username", "product_name").
 		Values(username, item).
 		ToSql()

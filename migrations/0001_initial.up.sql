@@ -41,11 +41,11 @@ CREATE TABLE IF NOT EXISTS transfers (
    FOREIGN KEY (receiver_username) REFERENCES users (username) -- связь с таблицей пользователей
 );
 
--- Создаём таблицу purchases (покупки)
+-- Создаём таблицу purchases (покупки)ч
 CREATE TABLE IF NOT EXISTS purchases (
    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
    username VARCHAR(100) NOT NULL, -- имя покупателя
-   product_name VARCHAR(100) NOT NULL UNIQUE, -- ID продукта
+   product_name VARCHAR(100) NOT NULL, -- ID продукта
    FOREIGN KEY (username) REFERENCES users (username), -- связь с таблицей пользователей
    FOREIGN KEY (product_name) REFERENCES products (product_name) -- связь с таблицей продуктов
 );
