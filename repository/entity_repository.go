@@ -90,6 +90,75 @@ func (r *EntityRepo) GetInfo(username string) (*entities.InfoResponse, error) {
 	return nil, nil
 }
 
-func (r *EntityRepo) SendCoin(senderUsername, recipientUsername string) error {
+func (r *EntityRepo) SendCoin(senderUsername string, recipientUsername string, amount int) error {
+	tx, err := r.db.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to start transaction: %v", err)
+	}
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit()
+		}
+	}()
+
+	query, args, _ := r.builder.Select("balance").
+		From("users").
+		Where(sq.Eq{"username": senderUsername}).
+		ToSql()
+
+	var senderBalance int
+	err = tx.QueryRow(query, args...).Scan(&senderBalance)
+	if err != nil {
+		fmt.Println("unable to get sender's balance: sender ", senderUsername)
+		return fmt.Errorf("unable to get sender's balance: %v sender %v", err, senderBalance)
+	}
+
+	if senderBalance < amount {
+		err = fmt.Errorf("not enough balance for the transfer")
+		return err
+	}
+
+	updateSenderBalance, args, _ := r.builder.Update("users").
+		Set("balance", senderBalance-amount).
+		Where(sq.Eq{"username": senderUsername}).
+		ToSql()
+	_, err = tx.Exec(updateSenderBalance, args...)
+
+	if err != nil {
+		return fmt.Errorf("failed to update sender's balance: %v", err)
+	}
+
+	query, args, _ = r.builder.Select("balance").
+		From("users").
+		Where(sq.Eq{"username": recipientUsername}).
+		ToSql()
+
+	var receiverBalance int
+	err = tx.QueryRow(query, args...).Scan(&receiverBalance)
+	if err != nil {
+		return fmt.Errorf("unable to get receiver's balance: %v", err)
+	}
+
+	updateReceiverBalance, args, _ := r.builder.Update("users").
+		Set("balance", receiverBalance+amount).
+		Where(sq.Eq{"username": recipientUsername}).
+		ToSql()
+	_, err = tx.Exec(updateReceiverBalance, args...)
+	if err != nil {
+		return fmt.Errorf("failed to update receiver's balance: %v", err)
+	}
+
+	transferQuery, args, _ := r.builder.Insert("transfers").
+		Columns("sender_username", "receiver_username", "amount").
+		Values(senderUsername, recipientUsername, amount).
+		ToSql()
+	_, err = tx.Exec(transferQuery, args...)
+	if err != nil {
+		return fmt.Errorf("failed to add in transfers: %v", err)
+	}
+
 	return nil
 }

@@ -16,7 +16,8 @@ func (u *Usecase) BuyItem(username, item string) error {
 	u.repo.BuyItem("john_doe", "cup")
 	return nil
 }
-func (u *Usecase) SendCoin(senderUsername, recipientUsername string) error {
+func (u *Usecase) SendCoin(senderUsername string, recipientUsername string, amount int) error {
+	u.repo.SendCoin(senderUsername, recipientUsername, amount)
 	return nil
 }
 

@@ -21,6 +21,7 @@ func SetupRoutes(api *usecase.Usecase, mux *http.ServeMux) {
 
 	sendCoinCompleteHandler := internal.ChainMiddleware(
 		SendCoinHandler(api),
+		internal.ValidateSendCoinMiddleware,
 		internal.PostMethodMiddleware,
 	)
 

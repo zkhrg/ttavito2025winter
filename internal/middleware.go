@@ -2,14 +2,17 @@ package internal
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"strings"
+	"ttavito/domain/entities"
 )
 
 type contextKey string
 
 const (
 	UsernameContextKey contextKey = "username"
+	ValidSendCoinKey   contextKey = "validSendCoinReq"
 )
 
 func ChainMiddleware(handler http.Handler, middlewares ...func(http.Handler) http.Handler) http.Handler {
@@ -60,6 +63,26 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		}
 
 		ctx := context.WithValue(r.Context(), UsernameContextKey, username)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func ValidateSendCoinMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var req entities.SendCoinRequest
+
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "Invalid JSON format", http.StatusBadRequest)
+			return
+		}
+		defer r.Body.Close()
+
+		if req.ToUser == "" || req.Amount <= 0 {
+			http.Error(w, "Invalid input data", http.StatusBadRequest)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), ValidSendCoinKey, req)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
