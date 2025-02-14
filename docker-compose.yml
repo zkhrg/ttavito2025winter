@@ -23,8 +23,8 @@ services:
       POSTGRES_PASSWORD: ttavito
       POSTGRES_DB: ttavito
     volumes:
-      - postgres_data:/var/lib/postgresql/data
       - ./migrations:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
   postgres_data:

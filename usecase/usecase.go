@@ -9,13 +9,14 @@ type Usecase struct {
 	Repo interfaces.ShopRepository
 }
 
-func GetInfo(username string) (*entities.InfoResponse, error) {
+func (u *Usecase) GetInfo(username string) (*entities.InfoResponse, error) {
 	return nil, nil
 }
-func BuyItem(username, item string) error {
+func (u *Usecase) BuyItem(username, item string) error {
+	u.Repo.BuyItem("john_doe", "cup")
 	return nil
 }
-func SendCoin(senderUsername, recipientUsername string) error {
+func (u *Usecase) SendCoin(senderUsername, recipientUsername string) error {
 	return nil
 }
 

@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS transfers (
 CREATE TABLE IF NOT EXISTS purchases (
    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
    username VARCHAR(100) NOT NULL, -- имя покупателя
-   product_id UUID NOT NULL, -- ID продукта
+   product_name VARCHAR(100) NOT NULL UNIQUE, -- ID продукта
    FOREIGN KEY (username) REFERENCES users (username), -- связь с таблицей пользователей
-   FOREIGN KEY (product_id) REFERENCES products (id) -- связь с таблицей продуктов
+   FOREIGN KEY (product_name) REFERENCES products (product_name) -- связь с таблицей продуктов
 );

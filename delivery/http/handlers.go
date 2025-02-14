@@ -37,7 +37,7 @@ func SendCoin(uc *usecase.Usecase, w http.ResponseWriter, r *http.Request) {
 
 }
 func BuyItem(uc *usecase.Usecase, w http.ResponseWriter, r *http.Request) {
-
+	uc.Repo.BuyItem("john_doe", "cup")
 }
 func Auth(uc *usecase.Usecase, w http.ResponseWriter, r *http.Request) {
 

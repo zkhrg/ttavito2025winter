@@ -25,8 +25,8 @@ func SetupRoutes(api *usecase.Usecase, mux *http.ServeMux) {
 	)
 
 	getInfoCompleteHandler := internal.ChainMiddleware(
-		SendCoinHandler(api),
-		internal.PostMethodMiddleware,
+		GetInfoHandler(api),
+		internal.GetMethodMiddleware,
 	)
 
 	mux.Handle("/api/buy/{item}", buyItemCompleteHandler) // get
