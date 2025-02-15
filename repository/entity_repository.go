@@ -8,7 +8,9 @@ import (
 	"ttavito/domain/entities"
 	"ttavito/domain/interfaces"
 
+	"github.com/Masterminds/squirrel"
 	sq "github.com/Masterminds/squirrel"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type EntityRepo struct {
@@ -88,6 +90,44 @@ func (r *EntityRepo) BuyItem(username, item string) error {
 
 func (r *EntityRepo) GetInfo(username string) (*entities.InfoResponse, error) {
 	return nil, nil
+}
+
+func (r *EntityRepo) Auth(username, password string) (bool, error) {
+	var hashedPassword string
+	q, args, _ := r.builder.Select("user_password").
+		From("users").
+		Where(squirrel.Eq{"username": username}).
+		ToSql()
+
+	err := r.db.QueryRow(q, args...).Scan(&hashedPassword)
+	if err == nil {
+		if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password)); err != nil {
+			fmt.Println("passwords neq")
+			return false, nil
+		}
+		return true, nil
+	}
+
+	if err != sql.ErrNoRows {
+		return false, err
+	}
+
+	hashedPass, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return false, err
+	}
+
+	q, args, _ = r.builder.Insert("users").
+		Columns("username", "user_password").
+		Values(username, hashedPass).
+		ToSql()
+
+	_, err = r.db.Exec(q, args...)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 func (r *EntityRepo) SendCoin(senderUsername string, recipientUsername string, amount int) error {

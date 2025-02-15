@@ -17,12 +17,13 @@ func SetupRoutes(api *usecase.Usecase, mux *http.ServeMux) {
 	authUserCompleteHandler := internal.ChainMiddleware(
 		AuthHandler(api),
 		internal.PostMethodMiddleware,
+		internal.ValdateAuthRequestMiddleware,
 	)
 
 	sendCoinCompleteHandler := internal.ChainMiddleware(
 		SendCoinHandler(api),
-		internal.ValidateSendCoinMiddleware,
 		internal.PostMethodMiddleware,
+		internal.ValidateSendCoinMiddleware,
 	)
 
 	getInfoCompleteHandler := internal.ChainMiddleware(

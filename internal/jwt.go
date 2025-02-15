@@ -8,21 +8,19 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// Секретный ключ для подписи токенов (в проде лучше хранить в .env)
 var jwtSecret = []byte(os.Getenv("JWT_SECRET_KEY"))
 
-// GenerateToken создает JWT с username
-func GenerateToken(username string) (string, error) {
+func GenerateToken(username, password string) (string, error) {
 	claims := jwt.MapClaims{
 		"username": username,
-		"exp":      time.Now().Add(time.Hour * 24).Unix(), // Токен действует 24 часа
+		"password": password,
+		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(jwtSecret)
 }
 
-// ValidateToken проверяет JWT и возвращает username
 func ValidateToken(tokenString string) (string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
