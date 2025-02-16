@@ -39,12 +39,6 @@ CREATE TABLE IF NOT EXISTS transfers (
    FOREIGN KEY (receiver_username) REFERENCES users (username) -- связь с таблицей пользователей
 );
 
--- Индексы для ускорения поиска
-CREATE INDEX IF NOT EXISTS idx_transfers_sender ON transfers(sender_username);
-CREATE INDEX IF NOT EXISTS idx_transfers_receiver ON transfers(receiver_username);
-CREATE INDEX IF NOT EXISTS idx_purchases_username ON purchases(username);
-CREATE INDEX IF NOT EXISTS idx_purchases_product ON purchases(product_name);
-
 -- Создаём таблицу purchases (покупки)
 CREATE TABLE IF NOT EXISTS purchases (
    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -54,3 +48,9 @@ CREATE TABLE IF NOT EXISTS purchases (
    FOREIGN KEY (username) REFERENCES users (username), -- связь с таблицей пользователей
    FOREIGN KEY (product_name) REFERENCES products (product_name) -- связь с таблицей продуктов
 );
+
+-- Индексы для ускорения поиска
+CREATE INDEX IF NOT EXISTS idx_transfers_sender ON transfers(sender_username);
+CREATE INDEX IF NOT EXISTS idx_transfers_receiver ON transfers(receiver_username);
+CREATE INDEX IF NOT EXISTS idx_purchases_username ON purchases(username);
+CREATE INDEX IF NOT EXISTS idx_purchases_product ON purchases(product_name);

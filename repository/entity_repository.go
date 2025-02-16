@@ -100,13 +100,6 @@ func (r *EntityRepo) GetInfo(ctx context.Context, username string) (*entities.In
 		ToSql()
 
 	err := r.db.QueryRow(ctx, q, args...).Scan(&res.Coins)
-	if err != nil {
-		if err.Error() == pgx.ErrNoRows.Error() {
-			return nil, fmt.Errorf("user not found: %w", err)
-		}
-		return nil, fmt.Errorf("failed to get user balance: %w", err)
-	}
-
 	defer func() {
 		if err != nil {
 			slog.Error("Failed to get info", "error", err)
@@ -117,7 +110,13 @@ func (r *EntityRepo) GetInfo(ctx context.Context, username string) (*entities.In
 		}
 	}()
 
-	// Получаем инвентарь пользователя
+	if err != nil {
+		if err.Error() == pgx.ErrNoRows.Error() {
+			return nil, fmt.Errorf("user not found: %w", err)
+		}
+		return nil, fmt.Errorf("failed to get user balance: %w", err)
+	}
+
 	res.Inventory, err = r.GetUserInventory(ctx, username)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user inventory: %w", err)
@@ -273,7 +272,7 @@ func (r *EntityRepo) GetUserInventory(ctx context.Context, username string) ([]e
 		inventory = append(inventory, item)
 	}
 
-	return inventory, nil
+	return inventory, nil //
 }
 
 func (r *EntityRepo) GetUserTransactions(ctx context.Context, username string) ([]entities.SentResponse, []entities.ReceivedResponse, error) {
