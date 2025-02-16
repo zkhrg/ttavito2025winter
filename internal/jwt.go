@@ -10,7 +10,9 @@ import (
 
 var jwtSecret = []byte(os.Getenv("JWT_SECRET_KEY"))
 
-func GenerateToken(username, password string) (string, error) {
+type JWTTool struct{}
+
+func (r *JWTTool) GenerateToken(username, password string) (string, error) {
 	claims := jwt.MapClaims{
 		"username": username,
 		"password": password,
@@ -21,7 +23,7 @@ func GenerateToken(username, password string) (string, error) {
 	return token.SignedString(jwtSecret)
 }
 
-func ValidateToken(tokenString string) (string, error) {
+func (r *JWTTool) ValidateToken(tokenString string) (string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("unexpected signing method")

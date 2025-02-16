@@ -1,10 +1,13 @@
 package interfaces
 
-import "ttavito/domain/entities"
+import (
+	"context"
+	"ttavito/domain/entities"
+)
 
 type ShopRepository interface {
-	GetInfo(username string) (*entities.InfoResponse, error)
-	BuyItem(username, item string) error
-	SendCoin(senderUsername string, recipientUsername string, amount int) error
-	Auth(username, password string) (bool, error)
+	GetInfo(ctx context.Context, username string) (*entities.InfoResponse, error)
+	BuyItem(ctx context.Context, username, item string) error
+	SendCoin(ctx context.Context, senderUsername string, recipientUsername string, amount int) error
+	Auth(ctx context.Context, username, password string) (bool, error)
 }

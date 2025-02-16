@@ -1,29 +1,29 @@
 package main
 
 import (
-	"database/sql"
 	"log"
+	"log/slog"
 
 	"net/http"
 
 	"ttavito/config"
+	"ttavito/database"
 	myHttp "ttavito/delivery/http"
 	"ttavito/repository"
 	"ttavito/usecase"
-
-	_ "github.com/lib/pq"
 )
 
 func main() {
 	cfg := config.LoadConfig()
 
-	db, err := sql.Open("postgres", cfg.DatabaseURL)
+	pool, err := database.NewPostgresDB(cfg)
 	if err != nil {
-		log.Fatalf("Failed to connect to the database: %v", err)
+		slog.Error("Failed to create connection pool", "error", err)
+		return
 	}
-	defer db.Close()
+	defer pool.Close()
 
-	repo := repository.NewEntityRepo(db)
+	repo := repository.NewEntityRepo(pool)
 	api := usecase.NewUsecase(repo)
 
 	mux := http.NewServeMux()

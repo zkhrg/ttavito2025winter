@@ -6,50 +6,74 @@ import (
 
 	"ttavito/domain/entities"
 	"ttavito/internal"
-	"ttavito/usecase"
 )
 
-func GetInfoHandler(uc *usecase.Usecase) http.HandlerFunc {
+func GetInfoHandler(uc UsecaseShop) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
+		username, ok := r.Context().Value(internal.UsernameContextKey).(string)
+		if !ok {
+			http.Error(w, "Can't grab username from JWT", http.StatusInternalServerError)
+			return
+		}
+		res, _ := uc.GetInfo(r.Context(), username)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(*res)
 	}
 }
 
-func SendCoinHandler(uc *usecase.Usecase) http.HandlerFunc {
+func SendCoinHandler(uc UsecaseShop) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req, ok := r.Context().Value(internal.ValidSendCoinKey).(entities.SendCoinRequest)
 		if !ok {
 			http.Error(w, "Invalid request", http.StatusInternalServerError)
 			return
 		}
-		uc.SendCoin("zkhrg", req.ToUser, req.Amount)
+
+		username, ok := r.Context().Value(internal.UsernameContextKey).(string)
+		if !ok {
+			http.Error(w, "Can't grab username from JWT", http.StatusInternalServerError)
+			return
+		}
+		uc.SendCoin(r.Context(), username, req.ToUser, req.Amount)
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode("lol")
 	}
 }
 
-func BuyItemHandler(uc *usecase.Usecase) http.HandlerFunc {
+func BuyItemHandler(uc UsecaseShop) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		uc.BuyItem("john_doe", "cup")
+		item, ok := r.Context().Value(internal.ValidBuyItemKey).(string)
+		if !ok {
+			http.Error(w, "Invalid request", http.StatusInternalServerError)
+			return
+		}
+
+		username, ok := r.Context().Value(internal.UsernameContextKey).(string)
+		if !ok {
+			http.Error(w, "Can't grab username from JWT", http.StatusInternalServerError)
+			return
+		}
+
+		uc.BuyItem(r.Context(), username, item)
 	}
 }
 
-func AuthHandler(uc *usecase.Usecase) http.HandlerFunc {
+func AuthHandler(uc UsecaseShop) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req, ok := r.Context().Value(internal.ValidAuthReqKey).(entities.AuthRequest)
 		if !ok {
 			http.Error(w, "Invalid request", http.StatusInternalServerError)
 			return
 		}
-		err := uc.Auth(req.Username, req.Password)
+		err := uc.Auth(r.Context(), req.Username, req.Password)
 
 		if err != nil {
 			http.Error(w, "Could not generate token", http.StatusUnauthorized)
 			return
 		}
-
-		token, err := internal.GenerateToken(req.Username, req.Password)
+		jwttool := internal.JWTTool{}
+		token, err := jwttool.GenerateToken(req.Username, req.Password)
 
 		if err != nil {
 			http.Error(w, "Could not generate token", http.StatusInternalServerError)

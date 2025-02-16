@@ -8,12 +8,17 @@ import (
 	"ttavito/domain/entities"
 )
 
-type contextKey string
+type ContextKey string
+
+type TokenValidator interface {
+	ValidateToken(token string) (string, error)
+}
 
 const (
-	UsernameContextKey contextKey = "username"
-	ValidSendCoinKey   contextKey = "validSendCoinReq"
-	ValidAuthReqKey    contextKey = "validAuthReq"
+	UsernameContextKey ContextKey = "username"
+	ValidSendCoinKey   ContextKey = "validSendCoinReq"
+	ValidAuthReqKey    ContextKey = "validAuthReq"
+	ValidBuyItemKey    ContextKey = "validBuyItemReq"
 )
 
 func ChainMiddleware(handler http.Handler, middlewares ...func(http.Handler) http.Handler) http.Handler {
@@ -56,8 +61,8 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		}
 
 		token := strings.TrimPrefix(authHeader, "Bearer ")
-
-		username, err := ValidateToken(token)
+		jwttool := JWTTool{}
+		username, err := jwttool.ValidateToken(token)
 		if err != nil || username == "" {
 			http.Error(w, "Invalid token", http.StatusUnauthorized)
 			return
@@ -84,6 +89,20 @@ func ValidateSendCoinMiddleware(next http.Handler) http.Handler {
 		}
 
 		ctx := context.WithValue(r.Context(), ValidSendCoinKey, req)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func ValidateBuyItemMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		item := r.PathValue("item")
+
+		if item == "" {
+			http.Error(w, "Invalid input data", http.StatusBadRequest)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), ValidBuyItemKey, item)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
