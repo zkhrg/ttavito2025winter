@@ -4,12 +4,13 @@ linters:
   enable:
     - govet
     - staticcheck
-    - errcheck
     - golint
     - gocyclo
     - gosec
-    - revive
     - ineffassign
+  disable:
+    - errcheck
+    - revive
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0

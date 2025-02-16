@@ -2,6 +2,7 @@ package main
 
 import (
 	"log/slog"
+	"time"
 
 	"net/http"
 
@@ -34,7 +35,16 @@ func main() {
 	}
 
 	slog.Info("Server is running on port", "port", port)
-	if err := http.ListenAndServe(":"+port, mux); err != nil {
+
+	server := &http.Server{
+		Addr:           ":" + port,
+		Handler:        mux,
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
+
+	if err := server.ListenAndServe(); err != nil {
 		slog.Error("Failed to start server: ", "error", err)
 		return
 	}
