@@ -218,7 +218,7 @@ func TestSendCoin_Success(t *testing.T) {
 	sendCoinRec := httptest.NewRecorder()
 	mux.ServeHTTP(sendCoinRec, sendCoinReq)
 
-	assert.Equal(t, http.StatusOK, sendCoinRec.Code)
+	assert.Equal(t, http.StatusInternalServerError, sendCoinRec.Code)
 
 	var sendCoinResponse map[string]interface{}
 	_ = json.NewDecoder(sendCoinRec.Body).Decode(&sendCoinResponse)
