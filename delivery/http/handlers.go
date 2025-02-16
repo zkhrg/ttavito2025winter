@@ -15,7 +15,11 @@ func GetInfoHandler(uc UsecaseShop) http.HandlerFunc {
 			http.Error(w, "Can't grab username from JWT", http.StatusInternalServerError)
 			return
 		}
-		res, _ := uc.GetInfo(r.Context(), username)
+		res, err := uc.GetInfo(r.Context(), username)
+		if err != nil {
+			http.Error(w, "Can't get info", http.StatusInternalServerError)
+			return
+		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(*res)
 	}
@@ -34,10 +38,11 @@ func SendCoinHandler(uc UsecaseShop) http.HandlerFunc {
 			http.Error(w, "Can't grab username from JWT", http.StatusInternalServerError)
 			return
 		}
-		uc.SendCoin(r.Context(), username, req.ToUser, req.Amount)
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode("")
+		err := uc.SendCoin(r.Context(), username, req.ToUser, req.Amount)
+		if err != nil {
+			http.Error(w, "Can't send coins", http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
@@ -55,7 +60,11 @@ func BuyItemHandler(uc UsecaseShop) http.HandlerFunc {
 			return
 		}
 
-		uc.BuyItem(r.Context(), username, item)
+		err := uc.BuyItem(r.Context(), username, item)
+		if err != nil {
+			http.Error(w, "Can't buy item", http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
