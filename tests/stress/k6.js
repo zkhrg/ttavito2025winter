@@ -29,7 +29,7 @@ export function getAuthToken(username, password) {
 
 export default function () {
     if (!token) {
-        token = getAuthToken('your-username', 'your-password'); // Укажите свои данные
+        token = getAuthToken('test', 'test'); // Укажите свои данные
     }
 
     // Запрос на информацию

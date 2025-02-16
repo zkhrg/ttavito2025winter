@@ -37,7 +37,7 @@ func SendCoinHandler(uc UsecaseShop) http.HandlerFunc {
 		uc.SendCoin(r.Context(), username, req.ToUser, req.Amount)
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode("lol")
+		json.NewEncoder(w).Encode("")
 	}
 }
 

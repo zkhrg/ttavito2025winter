@@ -272,7 +272,7 @@ func (r *EntityRepo) GetUserInventory(ctx context.Context, username string) ([]e
 		inventory = append(inventory, item)
 	}
 
-	return inventory, nil //
+	return inventory, nil
 }
 
 func (r *EntityRepo) GetUserTransactions(ctx context.Context, username string) ([]entities.SentResponse, []entities.ReceivedResponse, error) {

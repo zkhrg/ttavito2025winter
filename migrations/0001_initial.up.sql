@@ -14,6 +14,10 @@ CREATE TABLE IF NOT EXISTS users (
    balance INT NOT NULL DEFAULT 1000 CHECK (balance >= 0) -- баланс пользователя
 );
 
+INSERT INTO users (username, user_password) VALUES
+   ('test', 'test')
+ON CONFLICT (username) DO NOTHING; 
+
 -- Заполняем таблицу данными
 INSERT INTO products (product_name, price) VALUES
    ('t-shirt', 80),
