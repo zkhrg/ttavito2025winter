@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"log/slog"
 
 	"net/http"
@@ -34,8 +33,9 @@ func main() {
 		port = "8080"
 	}
 
-	log.Printf("Server is running on port %s", port)
+	slog.Info("Server is running on port", "port", port)
 	if err := http.ListenAndServe(":"+port, mux); err != nil {
-		log.Fatalf("Failed to start server: %v", err)
+		slog.Error("Failed to start server: ", "error", err)
+		return
 	}
 }

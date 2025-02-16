@@ -107,6 +107,16 @@ func (r *EntityRepo) GetInfo(ctx context.Context, username string) (*entities.In
 		return nil, fmt.Errorf("failed to get user balance: %w", err)
 	}
 
+	defer func() {
+		if err != nil {
+			slog.Error("Failed to get info", "error", err)
+		} else {
+			if err == nil {
+				slog.Info("success grabbed info from bd")
+			}
+		}
+	}()
+
 	// Получаем инвентарь пользователя
 	res.Inventory, err = r.GetUserInventory(ctx, username)
 	if err != nil {
